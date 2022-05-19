@@ -1,4 +1,4 @@
-package bj;
+package bj.bruteForce;
 
 import java.util.Scanner;
 

@@ -1,4 +1,4 @@
-package bj;
+package bj.dp;
 
 import java.util.Scanner;
 

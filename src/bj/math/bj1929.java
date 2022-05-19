@@ -1,4 +1,4 @@
-package bj;
+package bj.math;
 
 import java.time.LocalTime;
 import java.util.Scanner;

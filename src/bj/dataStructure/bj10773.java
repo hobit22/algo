@@ -1,4 +1,4 @@
-package bj;
+package bj.dataStructure;
 
 import java.util.Scanner;
 import java.util.Stack;

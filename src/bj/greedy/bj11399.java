@@ -1,4 +1,4 @@
-package bj;
+package bj.greedy;
 
 import java.util.ArrayList;
 import java.util.Collections;
