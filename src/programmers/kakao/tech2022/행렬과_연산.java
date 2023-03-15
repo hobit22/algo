@@ -38,16 +38,16 @@ public class 행렬과_연산 {
             int[][] map = rc;
 
             for (String operation : operations) {
-                System.out.println("operation = " + operation);
-                printMap(map);
-
-                System.out.println("===============================");
+//                System.out.println("operation = " + operation);
+//                printMap(map);
+//
+//                System.out.println("===============================");
                 if (operation.equals("ShiftRow")) {
                     map = shiftRow(map);
                 } else if (operation.equals("Rotate")) {
                     map = rotate(map);
                 }
-                printMap(map);
+//                printMap(map);
 
             }
 
@@ -56,34 +56,9 @@ public class 행렬과_연산 {
         }
 
         private int[][] rotate(int[][] map) {
-            int[][] newMap = new int[map.length][map[0].length];
 
-            for (int i = 0; i < newMap.length; i++) {
-                for (int j = 0; j < newMap[i].length; j++) {
-                    newMap[i][j] = map[i][j];
-                }
-            }
-
-            int r = 0;
-            int c = 0;
-
-//            for (int i = 0; i < 4; i++) {
-//
-//                int targetR = r + dr[i];
-//                int targetC = c + dc[i];
-//                while (targetR < map.length && targetC < map[0].length && targetR >= 0 && targetC >= 0) {
-//                    newMap[targetR][targetC] = map[r][c];
-//
-//                    r = targetR;
-//                    c = targetC;
-//
-//                    targetR = r + dr[i];
-//                    targetC = c + dc[i];
-//                }
-//            }
-
-            int[] firstR = map[0];
-            int[] lastR = map[MAX_ROW - 1];
+            int[] firstR = new int[MAX_COL];
+            int[] lastR = new int[MAX_COL];
             int[] firstC = new int[MAX_ROW];
             int[] lastC = new int[MAX_ROW];
 
@@ -92,24 +67,31 @@ public class 행렬과_연산 {
                 lastC[i] = map[i][MAX_COL - 1];
             }
 
-            for (int i = 0; i < firstR.length - 1; i++) { // 첫행 끝원소 제외
-                newMap[0][i + 1] = firstR[i];
+            for (int i = 0; i < MAX_COL; i++) {
+                firstR[i] = map[0][i];
+                lastR[i] = map[MAX_ROW - 1][i];
             }
 
-            for (int i = 0; i < lastC.length - 1; i++) { // 끝열 끝원소 제외
-                newMap[i+1][MAX_COL - 1] = lastC[i];
+            for (int i = 0; i < firstR.length - 1; i++) {
+                map[0][i + 1] = firstR[i]; // 첫행 끝원소 제외
+//                map[MAX_ROW - 1][i] = lastR[i + 1]; // 끝행 첫원소 제외
             }
 
-            for (int i = 1; i <= lastR.length - 1; i++) { // 끝행 첫원소 제외
-                newMap[MAX_ROW - 1][i - 1] = lastR[i];
+            for (int i = 0; i < lastC.length - 1; i++) {
+                map[i+1][MAX_COL - 1] = lastC[i]; // 끝열 끝원소 제외
+//                map[i + 1][0] = firstC[i]; // 첫열 첫원소 제외
             }
 
-            for (int i = 1; i <= firstC.length - 1; i++) { // 첫열 첫원소 제외
-                newMap[i - 1][0] = firstC[i];
+            for (int i = 1; i <= lastR.length - 1; i++) {
+                map[MAX_ROW - 1][i - 1] = lastR[i]; // 끝행 첫원소 제외
+            }
+
+            for (int i = 1; i <= firstC.length - 1; i++) {
+                map[i - 1][0] = firstC[i]; // 첫열 첫원소 제외
             }
 
 
-            return newMap;
+            return map;
         }
 
         private void printMap(int[][] rc) {
