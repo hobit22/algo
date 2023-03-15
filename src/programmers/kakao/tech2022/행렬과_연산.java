@@ -1,7 +1,6 @@
 package programmers.kakao.tech2022;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class 행렬과_연산 {
     public static void main(String[] args) {
@@ -15,15 +14,14 @@ public class 행렬과_연산 {
 
         Solution solution = new Solution();
 
-//        int[][] solution1 = solution.solution(new int[][]{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}, new String[]{"Rotate", "ShiftRow"});
-//        int[][] solution2 = solution.solution(new int[][]{{8, 6, 3}, {3, 3, 6}, {8, 4, 9}}, new String[]{"Rotate", "ShiftRow", "ShiftRow"});
+        int[][] solution1 = solution.solution(new int[][]{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}, new String[]{"Rotate", "ShiftRow"});
+        int[][] solution2 = solution.solution(new int[][]{{8, 6, 3}, {3, 3, 6}, {8, 4, 9}}, new String[]{"Rotate", "ShiftRow", "ShiftRow"});
         int[][] solution3 = solution.solution(new int[][]{{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}}, new String[]{"ShiftRow", "Rotate", "ShiftRow", "Rotate"});
-        int[][] solution4 = solution.solution(new int[][]{{1,2}, {3,4}}, new String[]{"ShiftRow", "Rotate", "ShiftRow", "Rotate"});
 
-//        System.out.println("solution1 = " + Arrays.deepToString(solution1));
-//        System.out.println("solution2 = " + Arrays.deepToString(solution2));
+
+        System.out.println("solution1 = " + Arrays.deepToString(solution1));
+        System.out.println("solution2 = " + Arrays.deepToString(solution2));
         System.out.println("solution3 = " + Arrays.deepToString(solution3));
-        System.out.println("solution4 = " + Arrays.deepToString(solution4));
     }
 
     static class Solution {
@@ -69,20 +67,47 @@ public class 행렬과_연산 {
             int r = 0;
             int c = 0;
 
-            for (int i = 0; i < 4; i++) {
+//            for (int i = 0; i < 4; i++) {
+//
+//                int targetR = r + dr[i];
+//                int targetC = c + dc[i];
+//                while (targetR < map.length && targetC < map[0].length && targetR >= 0 && targetC >= 0) {
+//                    newMap[targetR][targetC] = map[r][c];
+//
+//                    r = targetR;
+//                    c = targetC;
+//
+//                    targetR = r + dr[i];
+//                    targetC = c + dc[i];
+//                }
+//            }
 
-                int targetR = r + dr[i];
-                int targetC = c + dc[i];
-                while (targetR < map.length && targetC < map[0].length && targetR >= 0 && targetC >= 0) {
-                    newMap[targetR][targetC] = map[r][c];
+            int[] firstR = map[0];
+            int[] lastR = map[MAX_ROW - 1];
+            int[] firstC = new int[MAX_ROW];
+            int[] lastC = new int[MAX_ROW];
 
-                    r = targetR;
-                    c = targetC;
-
-                    targetR = r + dr[i];
-                    targetC = c + dc[i];
-                }
+            for (int i = 0; i < MAX_ROW; i++) {
+                firstC[i] = map[i][0];
+                lastC[i] = map[i][MAX_COL - 1];
             }
+
+            for (int i = 0; i < firstR.length - 1; i++) { // 첫행 끝원소 제외
+                newMap[0][i + 1] = firstR[i];
+            }
+
+            for (int i = 0; i < lastC.length - 1; i++) { // 끝열 끝원소 제외
+                newMap[i+1][MAX_COL - 1] = lastC[i];
+            }
+
+            for (int i = 1; i <= lastR.length - 1; i++) { // 끝행 첫원소 제외
+                newMap[MAX_ROW - 1][i - 1] = lastR[i];
+            }
+
+            for (int i = 1; i <= firstC.length - 1; i++) { // 첫열 첫원소 제외
+                newMap[i - 1][0] = firstC[i];
+            }
+
 
             return newMap;
         }
