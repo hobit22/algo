@@ -8,7 +8,7 @@ public class Incentive {
     public static void main(String[] args) {
 
         Solution solution = new Solution();
-        int solution1 = solution.solution(new int[][]{{2, 2}, {1, 4}, {3, 2}, {3, 2}});
+        int solution1 = solution.solution(new int[][]{{4, 1}, {2, 4}, {3, 5}});
         System.out.println("solution1 = " + solution1);
 
     }
@@ -22,9 +22,9 @@ public class Incentive {
                 personList.add(new Person(i, scores[i]));
             }
 
-            Collections.sort(personList);
+            Person targetPerson = personList.get(0);
 
-            Person targetPerson = personList.stream().filter(person -> person.pos == 1).findFirst().get();
+            Collections.sort(personList);
 
             int firstPersonNoIncentivePosition = checkIncentive(personList);
             System.out.println("firstPersonNoIncentivePosition = " + firstPersonNoIncentivePosition);
@@ -44,53 +44,38 @@ public class Incentive {
 
                 if (targetPerson1.sum == targetPerson2.sum) {
                     targetPerson2.rank = targetPerson1.rank;
+                } else {
+                    targetPerson2.rank = i + 2;
                 }
             }
 
-            return targetPerson.incentive || targetPerson.rank == 0 ? targetPerson.rank : -1;
+            return targetPerson.incentive ? targetPerson.rank : -1;
         }
 
         private int checkIncentive(List<Person> personList) {
 
-            int left = 0;
-            int right = personList.size();
-            int mid = (left + right) / 2;
+            int start = 0;
+            int end = personList.size() - 1;
+            int mid;
 
-            while (left < mid) {
-                int cnt = 0;
+            while (start <= end) {
+                mid = (start + end) / 2;
 
-                cnt++;
-
-                if (cnt > 10) {
-                    System.out.println("cnt = " + cnt);
-                }
-                int newLeft;
-                int newMid;
-                int newRight;
-
-                Person leftP = personList.get(left);
+                Person leftP = personList.get(start);
                 Person rightP = personList.get(mid);
                 System.out.println("============================");
                 System.out.println("leftP.sum = " + leftP.sum);
                 System.out.println("rightP.sum = " + rightP.sum);
 
                 if (leftP.score[0] > rightP.score[0] && leftP.score[1] > rightP.score[1]) {
-                    newLeft = left;
-                    newRight = mid;
+                    end = mid - 1;
                 } else {
-                    newLeft = mid;
-                    newRight = right;
+                    start = mid + 1;
                 }
-
-                newMid = (newLeft + newRight) / 2;
-                left = newLeft;
-                mid = newMid;
-                right = newRight;
             }
-            System.out.println("left = " + left);
-            System.out.println("mid = " + mid);
-            System.out.println("right = " + right);
-            return right;
+            System.out.println("start = " + start);
+            System.out.println("end = " + end);
+            return end + 1;
         }
 
 
@@ -109,7 +94,11 @@ public class Incentive {
 
             @Override
             public int compareTo(Person o) {
-                return o.sum - this.sum;
+                if (o.sum == this.sum) {
+                    return o.score[0] - this.score[0];
+                } else {
+                    return o.sum - this.sum;
+                }
             }
 
             public void noIncentive() {
