@@ -1,8 +1,6 @@
 package programmers.kakao.tech2022;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.PriorityQueue;
+import java.util.*;
 import java.util.stream.IntStream;
 
 
@@ -61,9 +59,9 @@ public class 등산코스_정하기 {
                 for (int end = 0; end < SUMMITS.length; end++) {
 
                     int upCost = dijkstra(GATES[start], SUMMITS[end]);
-                    int downCout = dijkstra(SUMMITS[end], GATES[start]);
+                    int downCost = dijkstra(SUMMITS[end], GATES[start]);
 
-                    min = Math.min(upCost + downCout, min);
+                    min = Math.min(upCost + downCost, min);
                 }
             }
 
@@ -76,43 +74,46 @@ public class 등산코스_정하기 {
         private int dijkstra(int start, int end) {
             // dijkstra init setting
             int[] dist = new int[V + 1];
-            int intensity = Integer.MIN_VALUE;
+            int intensity = 0;
             for (int i = 0; i < V + 1; i++) {
-                dist[i] = Integer.MAX_VALUE;
+                dist[i] = intensity;
             }
 
-            // dijkstra
+//             dijkstra
             PriorityQueue<Node> q = new PriorityQueue<>((o1,o2) ->
                 Integer.compare(o1.cost, o2.cost)
             );
+
+//            Queue<Node> q = new LinkedList<>();
 
             q.offer(new Node(start, 0));
             dist[start] = 0;
 
             while (!q.isEmpty()) {
                 Node poll = q.poll();
-                intensity = Math.min(intensity, poll.cost);
+                intensity = Math.max(intensity, poll.cost);
 
                 if (poll.idx == end) {
                     System.out.println(dist[poll.idx]);
                     break;
                 }
 
-                if (dist[poll.idx] < poll.cost) {
-                    continue;
-                }
+//                if (dist[poll.idx] < poll.cost) {
+//                    continue;
+//                }
 
                 for (int i = 0; i < graph.get(poll.idx).size(); i++) {
                     Node nextNode = graph.get(poll.idx).get(i);
 
-                    if (dist[nextNode.idx] > poll.cost + nextNode.cost) {
-                        dist[nextNode.idx] = poll.cost + nextNode.cost;
-                        q.offer(new Node(nextNode.idx, dist[nextNode.idx]));
-                    }
+//                    if (dist[nextNode.idx] > poll.cost + nextNode.cost) {
+//                        dist[nextNode.idx] = poll.cost + nextNode.cost;
+                    dist[nextNode.idx] = nextNode.cost;
+                    q.offer(new Node(nextNode.idx, dist[nextNode.idx]));
+//                    }
                 }
             }
 
-            return dist[end];
+            return intensity;
         }
 
         private static class Node {
