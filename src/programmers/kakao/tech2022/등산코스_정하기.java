@@ -76,6 +76,7 @@ public class 등산코스_정하기 {
         private int dijkstra(int start, int end) {
             // dijkstra init setting
             int[] dist = new int[V + 1];
+            int intensity = Integer.MIN_VALUE;
             for (int i = 0; i < V + 1; i++) {
                 dist[i] = Integer.MAX_VALUE;
             }
@@ -90,6 +91,7 @@ public class 등산코스_정하기 {
 
             while (!q.isEmpty()) {
                 Node poll = q.poll();
+                intensity = Math.min(intensity, poll.cost);
 
                 if (poll.idx == end) {
                     System.out.println(dist[poll.idx]);
