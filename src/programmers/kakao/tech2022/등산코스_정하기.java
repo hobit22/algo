@@ -74,6 +74,7 @@ public class 등산코스_정하기 {
         private int dijkstra(int start, int end) {
             // dijkstra init setting
             int[] dist = new int[V + 1];
+            boolean[] visited = new boolean[V + 1];
             int intensity = 0;
             for (int i = 0; i < V + 1; i++) {
                 dist[i] = intensity;
@@ -91,6 +92,7 @@ public class 등산코스_정하기 {
 
             while (!q.isEmpty()) {
                 Node poll = q.poll();
+                visited[poll.idx] = true;
                 intensity = Math.max(intensity, poll.cost);
 
                 if (poll.idx == end) {
@@ -104,12 +106,10 @@ public class 등산코스_정하기 {
 
                 for (int i = 0; i < graph.get(poll.idx).size(); i++) {
                     Node nextNode = graph.get(poll.idx).get(i);
-
-//                    if (dist[nextNode.idx] > poll.cost + nextNode.cost) {
-//                        dist[nextNode.idx] = poll.cost + nextNode.cost;
                     dist[nextNode.idx] = nextNode.cost;
-                    q.offer(new Node(nextNode.idx, dist[nextNode.idx]));
-//                    }
+                    if (!visited[nextNode.idx]) {
+                        q.offer(new Node(nextNode.idx, dist[nextNode.idx]));
+                    }
                 }
             }
 
