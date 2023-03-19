@@ -25,99 +25,82 @@ public class 행렬과_연산 {
     }
 
     static class Solution {
-        static int[] dr = new int[]{0, 1, 0, -1};
-        static int[] dc = new int[]{1, 0, -1, 0};
-        int MAX_ROW = 0;
-        int MAX_COL = 0;
+        int r, c;
+        ArrayDeque<Integer> col1, col2;
+        LinkedList<ArrayDeque<Integer>> rows;
+
 
         public int[][] solution(int[][] rc, String[] operations) {
-            MAX_ROW = rc.length;
-            MAX_COL = rc[0].length;
-
-            int[][] answer = {};
-            int[][] map = rc;
+            init(rc);
 
             for (String operation : operations) {
-//                System.out.println("operation = " + operation);
-//                printMap(map);
-//
-//                System.out.println("===============================");
-                if (operation.equals("ShiftRow")) {
-                    map = shiftRow(map);
-                } else if (operation.equals("Rotate")) {
-                    map = rotate(map);
+                switch (operation) {
+                    case "ShiftRow":
+                        shiftRow();
+                        break;
+                    case "Rotate":
+                        rotate();
+                        break;
                 }
-//                printMap(map);
-
             }
 
-
-            return map;
-        }
-
-        private int[][] rotate(int[][] map) {
-
-            int[] firstR = new int[MAX_COL];
-            int[] lastR = new int[MAX_COL];
-            int[] firstC = new int[MAX_ROW];
-            int[] lastC = new int[MAX_ROW];
-
-            for (int i = 0; i < MAX_ROW; i++) {
-                firstC[i] = map[i][0];
-                lastC[i] = map[i][MAX_COL - 1];
+            int[][] ans = new int[r][c];
+            for (int rowIdx = 0; rowIdx < r; rowIdx++) {
+                ans[rowIdx][0] = col1.pollFirst();
+                ans[rowIdx][c - 1] = col2.pollFirst();
             }
 
-            for (int i = 0; i < MAX_COL; i++) {
-                firstR[i] = map[0][i];
-                lastR[i] = map[MAX_ROW - 1][i];
-            }
-
-            for (int i = 0; i < firstR.length - 1; i++) {
-                map[0][i + 1] = firstR[i]; // 첫행 끝원소 제외
-//                map[MAX_ROW - 1][i] = lastR[i + 1]; // 끝행 첫원소 제외
-            }
-
-            for (int i = 0; i < lastC.length - 1; i++) {
-                map[i+1][MAX_COL - 1] = lastC[i]; // 끝열 끝원소 제외
-//                map[i + 1][0] = firstC[i]; // 첫열 첫원소 제외
-            }
-
-            for (int i = 1; i <= lastR.length - 1; i++) {
-                map[MAX_ROW - 1][i - 1] = lastR[i]; // 끝행 첫원소 제외
-            }
-
-            for (int i = 1; i <= firstC.length - 1; i++) {
-                map[i - 1][0] = firstC[i]; // 첫열 첫원소 제외
-            }
-
-
-            return map;
-        }
-
-        private void printMap(int[][] rc) {
-            for (int[] ints : rc) {
-                for (int anInt : ints) {
-                    System.out.print(anInt + " ");
+            int rowIdx=0;
+            for (ArrayDeque<Integer> row : rows) {
+                for (int colIdx = 1; colIdx < c - 1; colIdx++) {
+                    ans[rowIdx][colIdx] = row.pollFirst();
                 }
-                System.out.println();
-            }
-        }
-
-        private int[][] shiftRow(int[][] map) {
-            // find last row
-            int lastRowIdx = map.length - 1;
-            int[] lastRow = map[lastRowIdx];
-
-            for (int i = lastRowIdx - 1; i >= 0; i--) {
-                int[] targetRow = map[i];
-                map[i + 1] = targetRow;
+                rowIdx++;
             }
 
-            map[0] = lastRow;
-            return map;
+            return ans;
         }
 
+        private void init(int[][] rc) {
+            r = rc.length;
+            c = rc[0].length;
+
+            col1 = new ArrayDeque<>();
+            col2 = new ArrayDeque<>();
+
+            for (int i = 0; i < r; i++) {
+                col1.add(rc[i][0]);
+                col2.add(rc[i][c - 1]);
+            }
+
+            rows = new LinkedList<>();
+
+            for (int i = 0; i < r; i++) {
+                ArrayDeque<Integer> tmp = new ArrayDeque<>();
+                for (int j = 1; j < c - 1; j++) {
+                    tmp.add(rc[i][j]);
+                }
+                rows.add(tmp);
+            }
+
+        }
+
+        private void shiftRow() {
+            rows.addFirst(rows.pollLast());
+            col1.addFirst(col1.pollLast());
+            col2.addFirst(col2.pollLast());
+        }
+        private void rotate() {
+            if (c == 2) {
+                col2.addFirst(col1.pollFirst());
+                col1.addLast(col2.pollLast());
+                return;
+            }
+            rows.peekFirst().addFirst(col1.pollFirst());
+            col2.addFirst(rows.peekFirst().pollLast());
+            rows.peekLast().addLast(col2.pollLast());
+            col1.addLast(rows.peekLast().pollFirst());
+        }
 
     }
-
 }
