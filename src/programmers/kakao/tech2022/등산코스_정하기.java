@@ -1,7 +1,6 @@
 package programmers.kakao.tech2022;
 
 import java.util.*;
-import java.util.stream.IntStream;
 
 
 public class 등산코스_정하기 {
@@ -14,15 +13,16 @@ public class 등산코스_정하기 {
      */
     public static void main(String[] args) {
         Solution test = new Solution();
-        String pathsStr = "[[1, 2, 3], [2, 3, 5], [2, 4, 2], [2, 5, 4], [3, 4, 4], [4, 5, 3], [4, 6, 1], [5, 6, 1]]";
 
         int[][] paths = new int[][]{
                 {1, 2, 3}, {2, 3, 5}, {2, 4, 2}, {2, 5, 4}, {3, 4, 4}, {4, 5, 3}, {4, 6, 1}, {5, 6, 1}
         };
 
-        int[] solution = test.solution(6, paths, new int[]{1, 3}, new int[]{5});
+        int[] solutionA = test.solution(6, paths, new int[]{1, 3}, new int[]{5});
+        int[] solutionB = test.solution(4, new int[][]{{1, 3, 1}, {1, 4, 1}, {4, 2, 1}}, new int[]{1}, new int[] {2,3,4});
 
-        System.out.println("solution = " + Arrays.toString(solution));
+        System.out.println("solutionA = " + Arrays.toString(solutionA));
+        System.out.println("solutionB = " + Arrays.toString(solutionB));
     }
 
     static class Solution {
@@ -32,7 +32,7 @@ public class 등산코스_정하기 {
         static ArrayList<ArrayList<Node>> graph;
 
         public int[] solution(int n, int[][] paths, int[] gates, int[] summits) {
-            int[] answer = {};
+            int[] answer = new int[2];
 
             // setting
             V = n;
@@ -50,70 +50,82 @@ public class 등산코스_정하기 {
                 int e = path[1];
                 int cost = path[2];
 
-                graph.get(s).add(new Node(e, cost));
-                graph.get(e).add(new Node(s, cost));
+                // 출입구일 경우 다른 곳으로만 갈 수 있는 단방향
+                // 산봉우리일 경우 특정 한 곳에서 산봉우리로 가는 단방향
+                if (isGate(s) || isSummit(e)) {
+                    graph.get(s).add(new Node(e, cost));
+                } else if (isGate(e) || isSummit(s)) {
+                    graph.get(e).add(new Node(s, cost));
+                } else {
+                    // 일반 등산로일 경우 양방향
+                    graph.get(s).add(new Node(e, cost));
+                    graph.get(e).add(new Node(s, cost));
+                }
             }
 
             int min = Integer.MAX_VALUE;
             for (int start = 0; start < GATES.length; start++) {
                 for (int end = 0; end < SUMMITS.length; end++) {
 
-                    int upCost = dijkstra(GATES[start], SUMMITS[end]);
-                    int downCost = dijkstra(SUMMITS[end], GATES[start]);
+                    int cost = dijkstra(GATES[start], SUMMITS[end]);
 
-                    min = Math.min(upCost + downCost, min);
+                    if (cost < min) {
+                        min = cost;
+                        answer[0] = SUMMITS[end];
+                        answer[1] = min;
+                    }
+
                 }
             }
-
-            System.out.println("min = " + min);
-
 
             return answer;
         }
 
         private int dijkstra(int start, int end) {
             // dijkstra init setting
-            int[] dist = new int[V + 1];
-            boolean[] visited = new boolean[V + 1];
-            int intensity = 0;
+            int[] intensityArr = new int[V + 1];
             for (int i = 0; i < V + 1; i++) {
-                dist[i] = intensity;
+                intensityArr[i] = Integer.MAX_VALUE;
             }
 
-//             dijkstra
-            PriorityQueue<Node> q = new PriorityQueue<>((o1,o2) ->
-                Integer.compare(o1.cost, o2.cost)
-            );
-
-//            Queue<Node> q = new LinkedList<>();
+            Queue<Node> q = new LinkedList<>();
 
             q.offer(new Node(start, 0));
-            dist[start] = 0;
+            intensityArr[start] = 0;
 
             while (!q.isEmpty()) {
                 Node poll = q.poll();
-                visited[poll.idx] = true;
-                intensity = Math.max(intensity, poll.cost);
+                if(isSummit(poll.idx)) continue;
+                if(poll.cost > intensityArr[poll.idx]) continue;
 
-                if (poll.idx == end) {
-                    System.out.println(dist[poll.idx]);
-                    break;
-                }
-
-//                if (dist[poll.idx] < poll.cost) {
-//                    continue;
-//                }
 
                 for (int i = 0; i < graph.get(poll.idx).size(); i++) {
                     Node nextNode = graph.get(poll.idx).get(i);
-                    dist[nextNode.idx] = nextNode.cost;
-                    if (!visited[nextNode.idx]) {
-                        q.offer(new Node(nextNode.idx, dist[nextNode.idx]));
+
+                    int intensity = Math.max(intensityArr[poll.idx], nextNode.cost);
+
+                    if (intensityArr[nextNode.idx] > intensity) {
+                        intensityArr[nextNode.idx] = intensity;
+                        q.offer(new Node(nextNode.idx, intensity));
                     }
                 }
             }
 
-            return intensity;
+            return intensityArr[end];
+        }
+
+        private boolean isSummit(int e) {
+            for (int submit : SUMMITS) {
+                if (e == submit) return true;
+            }
+            return false;
+        }
+
+        private boolean isGate(int s) {
+            for (int gate : GATES) {
+                if (s == gate) return true;
+            }
+            return false;
         }
 
         private static class Node {
