@@ -63,35 +63,22 @@ public class 등산코스_정하기 {
                 }
             }
 
-            int min = Integer.MAX_VALUE;
-            for (int start = 0; start < GATES.length; start++) {
-                for (int end = 0; end < SUMMITS.length; end++) {
-
-                    int cost = dijkstra(GATES[start], SUMMITS[end]);
-
-                    if (cost < min) {
-                        min = cost;
-                        answer[0] = SUMMITS[end];
-                        answer[1] = min;
-                    }
-
-                }
-            }
-
-            return answer;
+            return dijkstra();
         }
 
-        private int dijkstra(int start, int end) {
-            // dijkstra init setting
+        private int[] dijkstra() {
+            Queue<Node> q = new LinkedList<>();
             int[] intensityArr = new int[V + 1];
+
+            // dijkstra init setting
             for (int i = 0; i < V + 1; i++) {
                 intensityArr[i] = Integer.MAX_VALUE;
             }
 
-            Queue<Node> q = new LinkedList<>();
-
-            q.offer(new Node(start, 0));
-            intensityArr[start] = 0;
+            for (int gate : GATES) {
+                q.add(new Node(gate, 0));
+                intensityArr[gate] = 0;
+            }
 
             while (!q.isEmpty()) {
                 Node poll = q.poll();
@@ -111,7 +98,16 @@ public class 등산코스_정하기 {
                 }
             }
 
-            return intensityArr[end];
+            int ansSubmit = 0;
+            int ansIntensity = Integer.MAX_VALUE;
+            for (int summit : SUMMITS) {
+                if (intensityArr[summit] < ansIntensity) {
+                    ansSubmit = summit;
+                    ansIntensity = intensityArr[summit];
+                }
+            }
+
+            return new int[]{ansSubmit, ansIntensity};
         }
 
         private boolean isSummit(int e) {
