@@ -1,6 +1,9 @@
 package programmers.kakao.tech2022;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
 
 
 public class 등산코스_정하기 {
@@ -10,6 +13,10 @@ public class 등산코스_정하기 {
      * 7	[[1, 4, 4], [1, 6, 1], [1, 7, 3], [2, 5, 2], [3, 7, 4], [5, 6, 6]]	[1]	[2, 3, 4]	[3, 4]
      * 7	[[1, 2, 5], [1, 4, 1], [2, 3, 1], [2, 6, 7], [4, 5, 1], [5, 6, 1], [6, 7, 1]]	[3, 7]	[1, 5]	[5, 1]
      * 5	[[1, 3, 10], [1, 4, 20], [2, 3, 4], [2, 4, 6], [3, 5, 20], [4, 5, 6]]	[1, 2]	[5]	[5, 6]
+     * n = 7
+     * paths = [[1, 4, 4], [1, 6, 1], [1, 7, 3], [2, 5, 2], [3, 7, 4], [5, 6, 6]]
+     * gates = [2]
+     * summits = [3, 4]
      */
     public static void main(String[] args) {
         Solution test = new Solution();
@@ -19,7 +26,8 @@ public class 등산코스_정하기 {
         };
 
         int[] solutionA = test.solution(6, paths, new int[]{1, 3}, new int[]{5});
-        int[] solutionB = test.solution(4, new int[][]{{1, 3, 1}, {1, 4, 1}, {4, 2, 1}}, new int[]{1}, new int[] {2,3,4});
+        int[] solutionB = test.solution(4, new int[][]{{1, 3, 1}, {1, 4, 1}, {4, 2, 1}}, new int[]{1}, new int[]{2, 3, 4});
+        int[] solutionC = test.solution(7, new int[][]{{1, 4, 4}, {1, 6, 1}, {1, 7, 3}, {2, 5, 2}, {3, 7, 4}, {5, 6, 6}}, new int[]{2}, new int[]{3, 4});
 
         System.out.println("solutionA = " + Arrays.toString(solutionA));
         System.out.println("solutionB = " + Arrays.toString(solutionB));
@@ -82,9 +90,8 @@ public class 등산코스_정하기 {
 
             while (!q.isEmpty()) {
                 Node poll = q.poll();
-                if(isSummit(poll.idx)) continue;
-                if(poll.cost > intensityArr[poll.idx]) continue;
-
+                if (isSummit(poll.idx)) continue;
+                if (poll.cost > intensityArr[poll.idx]) continue;
 
                 for (int i = 0; i < graph.get(poll.idx).size(); i++) {
                     Node nextNode = graph.get(poll.idx).get(i);
@@ -98,12 +105,16 @@ public class 등산코스_정하기 {
                 }
             }
 
-            int ansSubmit = 0;
+            int ansSubmit = Integer.MAX_VALUE;
             int ansIntensity = Integer.MAX_VALUE;
             for (int summit : SUMMITS) {
                 if (intensityArr[summit] < ansIntensity) {
                     ansSubmit = summit;
+
                     ansIntensity = intensityArr[summit];
+                } else if(intensityArr[summit] == ansIntensity) {
+                    ansSubmit = Math.min(ansSubmit, summit);
+
                 }
             }
 
