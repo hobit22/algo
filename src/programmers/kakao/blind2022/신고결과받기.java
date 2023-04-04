@@ -22,34 +22,115 @@ public class 신고결과받기 {
     }
 
     static class Solution {
-        public int[] solution(String[] idList, String[] report, int k) {
-            int[] answer = new int[idList.length];
-            HashMap<String, HashSet<String>> reporterInfoMap = new HashMap<>();
-            HashMap<String, Integer> reportedCountInfoMap = new HashMap<>();
-            HashSet<String> reportSet = new HashSet<>(Arrays.asList(report));
+        public int[] solution(String[] id_list, String[] report, int k) {
+            List<User> users = IntStream.range(0, id_list.length)
+                    .mapToObj(i -> new User(i, id_list[i]))
+                    .collect(Collectors.toList());
 
-            for (String reportInfo : reportSet) {
-                String reporter = reportInfo.split(" ")[0];  // 신고 한 사람
-                String reported = reportInfo.split(" ")[1];  // 신고 당한 사람
-                reporterInfoMap.putIfAbsent(reporter, new HashSet<String>() {{
-                    add(reported);
-                }});
-                reporterInfoMap.get(reporter).add(reported);
-                reportedCountInfoMap.put(reported, reportedCountInfoMap.getOrDefault(reported, 0) + 1);
+            List<Report> reports = Arrays.stream(report)
+                    .map(rawReport -> ReportParser.parse(users, rawReport))
+                    .collect(Collectors.toList());
+
+            List<Mail> mails = sendMail(reports, users, k);
+
+            return users.stream()
+                    .mapToInt(user -> (int) mails.stream().filter(mail -> mail.isSameUser(user)).count()).toArray();
+        }
+
+        private List<Mail> sendMail(List<Report> reports, List<User> users, int threshold) {
+            List<User> sortedUsers = users.stream().sorted().collect(Collectors.toList());
+
+            return sortedUsers.stream().map(user -> checkMailCount(reports, user, threshold))
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList());
+        }
+
+        private List<Mail> checkMailCount(List<Report> reports, User user, int threshold) {
+            List<Report> userReports = reports.stream()
+                    .filter(report -> report.reported.equals(user)).distinct().collect(Collectors.toList());
+
+            if (userReports.size() >= threshold) {
+                return userReports.stream()
+                        .map(report -> report.reporter)
+                        .map(Mail::new)
+                        .collect(Collectors.toList());
+            }
+            return Collections.emptyList();
+        }
+
+        private static class Mail {
+            private final User recipient;
+
+            public Mail(User recipient) {
+                this.recipient = recipient;
             }
 
-            for (String reported : reportedCountInfoMap.keySet()) {
-                int reportedCount = reportedCountInfoMap.get(reported);
-                if (reportedCount >= k) {
-                    // 메일 발송 대상
-                    for (int i = 0; i < idList.length; i++) {
-                        if (reporterInfoMap.containsKey(idList[i]) && reporterInfoMap.get(idList[i]).contains(reported)) {
-                            answer[i]++;
-                        }
-                    }
-                }
+            public boolean isSameUser(User user) {
+                return recipient.userId.equals(user.userId);
             }
-            return answer;
+        }
+
+        private static class ReportParser {
+            private static final String DELIMITER = " ";
+
+            public static Report parse(List<User> users, String report) {
+                String[] splitted = report.split(DELIMITER);
+                User reporter = users.stream().filter(user -> user.userId.equals(splitted[0])).findAny().orElse(null);
+                User reported = users.stream().filter(user -> user.userId.equals(splitted[1])).findAny().orElse(null);
+
+                return new Report(reporter, reported);
+            }
+        }
+
+        private static class User implements Comparable<User> {
+            public final Integer sequence;
+            public final String userId;
+
+            public User(Integer sequence, String userId) {
+                this.sequence = sequence;
+                this.userId = userId;
+            }
+
+            @Override
+            public int compareTo(User other) {
+                return this.sequence.compareTo(other.sequence);
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+                User user = (User) o;
+                return Objects.equals(sequence, user.sequence) && Objects.equals(userId, user.userId);
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(sequence, userId);
+            }
+        }
+
+        private static class Report {
+            public final User reporter;
+            public final User reported;
+
+            public Report(User reporter, User reported) {
+                this.reporter = reporter;
+                this.reported = reported;
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+                Report report = (Report) o;
+                return Objects.equals(reporter, report.reporter) && Objects.equals(reported, report.reported);
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(reporter, reported);
+            }
         }
     }
 }
