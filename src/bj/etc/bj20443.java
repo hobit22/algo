@@ -8,10 +8,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 /**
- * 백준 20443 배드민턴 대회
- *
- * 다이나믹 프로그래밍
- *
  * 점화식
  * f(n) = (n-1)(f(n-1) + f(n-2))
  */
